@@ -1,6 +1,8 @@
 package me.hyeonho.toby.user.dao;
 
 import me.hyeonho.toby.user.domain.User;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.sql.*;
 
@@ -10,6 +12,8 @@ public class UserDao {
     public UserDao(ConnectionMaker connectionMaker) {
         this.connectionMaker = connectionMaker;
     }
+
+
 
     public void add(User user) throws  ClassNotFoundException, SQLException{
         Connection c = connectionMaker.makeConnection();
