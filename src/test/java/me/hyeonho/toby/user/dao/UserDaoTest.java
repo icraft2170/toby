@@ -1,5 +1,6 @@
 package me.hyeonho.toby.user.dao;
 
+import me.hyeonho.toby.TestDaoFactory;
 import me.hyeonho.toby.user.domain.User;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,7 +20,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {DaoFactory.class})
+@ContextConfiguration(classes = {TestDaoFactory.class})
 class UserDaoTest {
     @Autowired
     private ApplicationContext context;
