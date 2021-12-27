@@ -15,22 +15,22 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserDaoTest {
-    ApplicationContext context;
-    UserDao dao;
-    User user1;
-    User user2;
-    User user3;
+    private static ApplicationContext context;
+    private static UserDao dao;
+    private static User user1;
+    private static User user2;
+    private static User user3;
 
-
-    @BeforeEach
-    void setUp(){
+    // 픽스처(fixture)
+    @BeforeAll
+    static void setUp(){
         context = new AnnotationConfigApplicationContext(DaoFactory.class);
         dao = context.getBean("userDao", UserDao.class);
         user1 = new User("gyumee", "박성철", "springno1");
         user2 = new User("leegw700", "이길원", "springno2");
         user3 = new User("bumjin", "박범진", "springno3");
-
     }
+
 
 
     @Test
@@ -49,7 +49,6 @@ class UserDaoTest {
         dao.deleteAll();
         assertThat(dao.getCount()).isEqualTo(0);
 
-
         dao.add(user1);
         dao.add(user2);
         assertThat(dao.getCount()).isEqualTo(2);
@@ -65,7 +64,6 @@ class UserDaoTest {
 
     @Test
     void count_테스트() throws SQLException {
-
         dao.deleteAll();
         assertThat(dao.getCount()).isEqualTo(0);
 
