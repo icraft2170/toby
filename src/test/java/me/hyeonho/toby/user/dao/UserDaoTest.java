@@ -5,27 +5,34 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {DaoFactory.class})
 class UserDaoTest {
-    private static ApplicationContext context;
-    private static UserDao dao;
-    private static User user1;
-    private static User user2;
-    private static User user3;
+    @Autowired
+    private ApplicationContext context;
+
+    private UserDao dao;
+    private User user1;
+    private User user2;
+    private User user3;
 
     // 픽스처(fixture)
-    @BeforeAll
-    static void setUp(){
-        context = new AnnotationConfigApplicationContext(DaoFactory.class);
-        dao = context.getBean("userDao", UserDao.class);
+    @BeforeEach
+    void setUp(){
+        dao = this.context.getBean("userDao", UserDao.class);
         user1 = new User("gyumee", "박성철", "springno1");
         user2 = new User("leegw700", "이길원", "springno2");
         user3 = new User("bumjin", "박범진", "springno3");
