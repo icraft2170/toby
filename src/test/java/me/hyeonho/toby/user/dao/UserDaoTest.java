@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -19,12 +20,7 @@ import java.sql.SQLException;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestDaoFactory.class})
 class UserDaoTest {
-    @Autowired
-    private ApplicationContext context;
-
     private UserDao dao;
     private User user1;
     private User user2;
@@ -33,24 +29,14 @@ class UserDaoTest {
     // 픽스처(fixture)
     @BeforeEach
     void setUp(){
-        dao = this.context.getBean("userDao", UserDao.class);
+        dao = new UserDao(new SingleConnectionDataSource(
+                "jdbc:mysql://localhost/toby","toby","see3470",true
+        ));
         user1 = new User("gyumee", "박성철", "springno1");
         user2 = new User("leegw700", "이길원", "springno2");
         user3 = new User("bumjin", "박범진", "springno3");
     }
 
-
-
-    @Test
-    void 스프링컨테이너_싱글톤_테스트(){
-        UserDao dao3 = context.getBean("userDao", UserDao.class);
-        UserDao dao4 = context.getBean("userDao", UserDao.class);
-
-        System.out.println(dao3);
-        System.out.println(dao4);
-
-        assertThat(dao3).isEqualTo(dao4);
-    }
 
     @Test
     void addAndGet() throws SQLException{
