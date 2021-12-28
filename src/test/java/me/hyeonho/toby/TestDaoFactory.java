@@ -1,5 +1,6 @@
 package me.hyeonho.toby;
 
+import me.hyeonho.toby.user.dao.JdbcContext;
 import me.hyeonho.toby.user.dao.UserDao;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,13 @@ public class TestDaoFactory {
     }
 
     @Bean
-    public UserDao userDao(){
-        return new UserDao(dataSource());
+    public JdbcContext jdbcContext(){
+        return new JdbcContext(dataSource());
     }
+
+    @Bean
+    public UserDao userDao(){
+        return new UserDao(dataSource(),jdbcContext());
+    }
+
 }
