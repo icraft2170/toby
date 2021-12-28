@@ -20,12 +20,16 @@ class UserDaoTest {
     // 픽스처(fixture)
     @BeforeEach
     void setUp(){
-        dao = new UserDao(new SingleConnectionDataSource(
-                "jdbc:mysql://localhost/toby","toby","see3470",true
-        ));
+        dao = new UserDao(getDataSource(), new JdbcContext(getDataSource()));
         user1 = new User("gyumee", "박성철", "springno1");
         user2 = new User("leegw700", "이길원", "springno2");
         user3 = new User("bumjin", "박범진", "springno3");
+    }
+
+    private SingleConnectionDataSource getDataSource() {
+        return new SingleConnectionDataSource(
+                "jdbc:mysql://localhost/toby", "toby", "see3470", true
+        );
     }
 
 
