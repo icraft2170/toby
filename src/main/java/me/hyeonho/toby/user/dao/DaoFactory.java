@@ -28,6 +28,6 @@ public class DaoFactory {
 
     @Bean
     public UserDao userDao(){
-        return new UserDao(dataSource(),jdbcContext());
+        return new UserDao(dataSource());
     }
 }
