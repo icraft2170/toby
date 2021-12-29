@@ -57,30 +57,19 @@ public class Calculator {
 
 
 
-
     public  Integer calcSum(String filepath) throws IOException{
-        BufferReaderCallback sumCallback =
-                (br) -> {
-                    Integer sum = 0;
-                    String line = null;
-                    while ((line = br.readLine()) != null){
-                        sum += Integer.valueOf(line);
-                    }
-                    return sum;
-                };
-        return fileReadTemplate(filepath, sumCallback);
+        LineCallback sumCallback =
+                ((line, value) -> {
+                    return value + Integer.valueOf(line);
+                });
+        return lineReadTemplate(filepath,sumCallback,0);
     }
 
     public Integer calcMultiply(String filepath) throws IOException {
-        BufferReaderCallback multiCallback =
-                (br) -> {
-                    Integer multiply = 1;
-                    String line = null;
-                    while ((line = br.readLine()) != null){
-                        multiply *= Integer.valueOf(line);
-                    }
-                    return multiply;
-                };
-        return fileReadTemplate(filepath, multiCallback);
+        LineCallback multiplyCallback =
+                ((line, value) -> {
+                    return value * Integer.valueOf(line);
+                });
+        return lineReadTemplate(filepath,multiplyCallback,1);
     }
 }
