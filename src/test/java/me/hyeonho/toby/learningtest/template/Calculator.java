@@ -30,17 +30,16 @@ public class Calculator {
 
 
 
-
-    public  Integer calcSum(String filepath) throws IOException{
+    public Integer lineReadTemplate(String filepath, LineCallback callback, int initVal) throws IOException {
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(filepath));
-            Integer sum = 0;
+            int res = initVal;
             String line = null;
             while ((line = br.readLine()) != null){
-                sum += Integer.valueOf(line);
+                res = callback.doSomethingWithLine(line, res);
             }
-            return sum;
+            return res;
         }catch (IOException e){
             System.out.println(e.getMessage());
             throw e;
@@ -56,4 +55,32 @@ public class Calculator {
         }
     }
 
+
+
+
+    public  Integer calcSum(String filepath) throws IOException{
+        BufferReaderCallback sumCallback =
+                (br) -> {
+                    Integer sum = 0;
+                    String line = null;
+                    while ((line = br.readLine()) != null){
+                        sum += Integer.valueOf(line);
+                    }
+                    return sum;
+                };
+        return fileReadTemplate(filepath, sumCallback);
+    }
+
+    public Integer calcMultiply(String filepath) throws IOException {
+        BufferReaderCallback multiCallback =
+                (br) -> {
+                    Integer multiply = 1;
+                    String line = null;
+                    while ((line = br.readLine()) != null){
+                        multiply *= Integer.valueOf(line);
+                    }
+                    return multiply;
+                };
+        return fileReadTemplate(filepath, multiCallback);
+    }
 }
