@@ -1,14 +1,12 @@
 package me.hyeonho.toby.user.dao;
 
 import me.hyeonho.toby.user.domain.User;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class CountingConnectionMakerTest {
 

@@ -1,10 +1,8 @@
 package me.hyeonho.toby.user.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import javax.sql.DataSource;
 
@@ -28,6 +26,6 @@ public class DaoFactory {
 
     @Bean
     public UserDao userDao(){
-        return new UserDao(dataSource());
+        return new UserDaoJdbc(dataSource());
     }
 }
