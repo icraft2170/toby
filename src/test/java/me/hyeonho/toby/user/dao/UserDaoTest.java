@@ -1,5 +1,6 @@
 package me.hyeonho.toby.user.dao;
 
+import me.hyeonho.toby.user.domain.Level;
 import me.hyeonho.toby.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,9 +35,9 @@ class UserDaoTest {
     void setUp(){
         dataSource = getDataSource();
         dao = new UserDaoJdbc(dataSource);
-        user1 = new User("gyumee", "박성철", "springno1");
-        user2 = new User("leegw700", "이길원", "springno2");
-        user3 = new User("bumjin", "박범진", "springno3");
+        user1 = new User("gyumee", "박성철", "springno1", Level.BASIC,1,0);
+        user2 = new User("leegw700", "이길원", "springno2",Level.SILVER,55,10);
+        user3 = new User("bumjin", "박범진", "springno3",Level.GOLD,100,40);
     }
 
     private SingleConnectionDataSource getDataSource() {
@@ -56,12 +57,10 @@ class UserDaoTest {
         assertThat(dao.getCount()).isEqualTo(2);
 
         User userGet1 = dao.get(user1.getId());
-        assertThat(userGet1.getName()).isEqualTo(user1.getName());
-        assertThat(userGet1.getPassword()).isEqualTo(user1.getPassword());
+        checkSameUser(userGet1,user1);
 
         User userGet2 = dao.get(user2.getId());
-        assertThat(userGet2.getName()).isEqualTo(user2.getName());
-        assertThat(userGet2.getPassword()).isEqualTo(user2.getPassword());
+        checkSameUser(userGet2,user2);
     }
 
     @Test
@@ -122,6 +121,9 @@ class UserDaoTest {
         assertThat(user1.getId()).isEqualTo(user2.getId());
         assertThat(user1.getName()).isEqualTo(user2.getName());
         assertThat(user1.getPassword()).isEqualTo(user2.getPassword());
+        assertThat(user1.getLevel()).isEqualTo(user2.getLevel());
+        assertThat(user1.getLogin()).isEqualTo(user2.getLogin());
+        assertThat(user1.getRecommend()).isEqualTo(user2.getRecommend());
     }
 
     @Test
@@ -144,5 +146,25 @@ class UserDaoTest {
             assertThat(set.translate(null,null,sqlEx))
                     .isInstanceOf(DuplicateKeyException.class);
         }
+    }
+
+    @Test
+    void 유저_수정() {
+        dao.deleteAll();
+
+        dao.add(user1);
+        dao.add(user2);
+
+        user1.setName("오민규");
+        user1.setPassword("spring6");
+        user1.setLevel(Level.GOLD);
+        user1.setLogin(1000);
+        user1.setRecommend(999);
+        dao.update(user1);
+
+        User user1update = dao.get(user1.getId());
+        checkSameUser(user1,user1update);
+        User user2same = dao.get(user2.getId());
+        checkSameUser(user2,user2same);
     }
 }

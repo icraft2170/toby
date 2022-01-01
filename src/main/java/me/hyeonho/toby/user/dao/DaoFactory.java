@@ -1,5 +1,6 @@
 package me.hyeonho.toby.user.dao;
 
+import me.hyeonho.toby.user.service.UserService;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,4 +29,7 @@ public class DaoFactory {
     public UserDao userDao(){
         return new UserDaoJdbc(dataSource());
     }
+
+    @Bean
+    public UserService userService(){return new UserService(userDao()); }
 }
