@@ -4,7 +4,6 @@ import me.hyeonho.toby.TestDaoFactory;
 import me.hyeonho.toby.user.dao.UserDao;
 import me.hyeonho.toby.user.domain.Level;
 import me.hyeonho.toby.user.domain.User;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +17,6 @@ import java.util.List;
 import static me.hyeonho.toby.user.service.UserLevelUpgradeBasicPolicy.MIN_LOGCOUNT_FOR_SILVER;
 import static me.hyeonho.toby.user.service.UserLevelUpgradeBasicPolicy.MIN_RECCOMEND_FOR_GOLD;
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestDaoFactory.class})
@@ -27,6 +25,8 @@ class UserServiceTest {
     UserService userService;
     @Autowired
     UserDao userDao;
+    @Autowired
+    UserLevelUpgradePolicy upgradePolicy;
 
 
     List<User> users;
@@ -52,11 +52,11 @@ class UserServiceTest {
 
         userService.upgradeLevels();
 
-        checkLevel(users.get(0), false);
-        checkLevel(users.get(1), true);
-        checkLevel(users.get(2), false);
-        checkLevel(users.get(3), true);
-        checkLevel(users.get(4), false);
+        checkLevelUpgraded(users.get(0), false);
+        checkLevelUpgraded(users.get(1), true);
+        checkLevelUpgraded(users.get(2), false);
+        checkLevelUpgraded(users.get(3), true);
+        checkLevelUpgraded(users.get(4), false);
     }
 
     @Test
@@ -77,7 +77,22 @@ class UserServiceTest {
         assertThat(userWithoutLevelRead.getLevel()).isEqualTo(Level.BASIC);
     }
 
-    private void checkLevel(User user, boolean upgraded) {
+    @Test
+    void 업그레이드_트랜잭션_테스트() {
+        TestUserService testUserService = new TestUserService(this.userDao,this.upgradePolicy,users.get(3).getId());
+        userDao.deleteAll();
+        for (User user : users) {
+            userDao.add(user);
+        }
+        try {
+            testUserService.upgradeLevels();
+            fail("TestUserServiceException expected");
+        }catch (TestUserServiceException e){}
+
+        checkLevelUpgraded(users.get(1),false);
+    }
+
+    private void checkLevelUpgraded(User user, boolean upgraded) {
         User userUpdate = userDao.get(user.getId());
         if (upgraded){
             assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel().nextLevel());
@@ -85,4 +100,23 @@ class UserServiceTest {
             assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
         }
     }
+
+
+
+    static class TestUserService extends UserService{
+        private String id;
+
+        public TestUserService(UserDao userDao, UserLevelUpgradePolicy upgradePolicy, String id) {
+            super(userDao, upgradePolicy);
+            this.id = id;
+        }
+
+
+        protected void upgradeLevel(User user) {
+            if(user.getId().equals(this.id)) throw  new TestUserServiceException();
+            super.getUpgradePolicy().upgradeLevel(user);
+        }
+    }
+
+    static class TestUserServiceException extends RuntimeException{}
 }
