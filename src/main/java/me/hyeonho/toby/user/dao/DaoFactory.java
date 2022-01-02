@@ -1,5 +1,7 @@
 package me.hyeonho.toby.user.dao;
 
+import me.hyeonho.toby.user.service.UserLevelUpgradeBasicPolicy;
+import me.hyeonho.toby.user.service.UserLevelUpgradePolicy;
 import me.hyeonho.toby.user.service.UserService;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -31,5 +33,10 @@ public class DaoFactory {
     }
 
     @Bean
-    public UserService userService(){return new UserService(userDao()); }
+    public UserService userService(){return new UserService(userDao(),userLevelUpgradePolicy()); }
+
+    @Bean
+    public UserLevelUpgradePolicy userLevelUpgradePolicy(){
+        return new UserLevelUpgradeBasicPolicy(userDao());
+    }
 }

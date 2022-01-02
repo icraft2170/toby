@@ -15,8 +15,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Arrays;
 import java.util.List;
 
-import static me.hyeonho.toby.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
-import static me.hyeonho.toby.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
+import static me.hyeonho.toby.user.service.UserLevelUpgradeBasicPolicy.MIN_LOGCOUNT_FOR_SILVER;
+import static me.hyeonho.toby.user.service.UserLevelUpgradeBasicPolicy.MIN_RECCOMEND_FOR_GOLD;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
