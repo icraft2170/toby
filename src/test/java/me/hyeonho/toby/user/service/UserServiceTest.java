@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +28,8 @@ class UserServiceTest {
     UserDao userDao;
     @Autowired
     UserLevelUpgradePolicy upgradePolicy;
+    @Autowired
+    DataSource dataSource;
 
 
     List<User> users;
@@ -44,7 +47,7 @@ class UserServiceTest {
 
 
     @Test
-    void 업그레이드_레벨() {
+    void 업그레이드_레벨() throws Exception {
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
@@ -79,7 +82,7 @@ class UserServiceTest {
 
     @Test
     void 업그레이드_트랜잭션_테스트() {
-        TestUserService testUserService = new TestUserService(this.userDao,this.upgradePolicy,users.get(3).getId());
+        TestUserService testUserService = new TestUserService(this.userDao,this.upgradePolicy,dataSource,users.get(3).getId());
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
@@ -87,7 +90,7 @@ class UserServiceTest {
         try {
             testUserService.upgradeLevels();
             fail("TestUserServiceException expected");
-        }catch (TestUserServiceException e){}
+        }catch (TestUserServiceException e){} catch (Exception e) {e.printStackTrace();}
 
         checkLevelUpgraded(users.get(1),false);
     }
@@ -106,11 +109,10 @@ class UserServiceTest {
     static class TestUserService extends UserService{
         private String id;
 
-        public TestUserService(UserDao userDao, UserLevelUpgradePolicy upgradePolicy, String id) {
-            super(userDao, upgradePolicy);
+        public TestUserService(UserDao userDao, UserLevelUpgradePolicy upgradePolicy, DataSource dataSource, String id) {
+            super(userDao, upgradePolicy, dataSource);
             this.id = id;
         }
-
 
         protected void upgradeLevel(User user) {
             if(user.getId().equals(this.id)) throw  new TestUserServiceException();
