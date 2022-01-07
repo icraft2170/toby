@@ -5,7 +5,10 @@ import lombok.RequiredArgsConstructor;
 import me.hyeonho.toby.user.dao.UserDao;
 import me.hyeonho.toby.user.domain.Level;
 import me.hyeonho.toby.user.domain.User;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
@@ -21,9 +24,12 @@ public class UserService {
     private final DataSource dataSource;
 
     public void upgradeLevels() throws Exception {
-        TransactionSynchronizationManager.initSynchronization(); // 동기화 작업 초기화
-        Connection connection = DataSourceUtils.getConnection(dataSource);
-        connection.setAutoCommit(false);
+        DataSourceTransactionManager transactionManager =
+                new DataSourceTransactionManager(dataSource);
+
+        TransactionStatus status =
+                transactionManager.getTransaction(new DefaultTransactionDefinition());
+
         try {
             List<User> users = userDao.getAll();
             for (User user : users) {
@@ -31,14 +37,10 @@ public class UserService {
                     upgradePolicy.upgradeLevel(user);
                 }
             }
-            connection.commit();
-        }catch (Exception e){
-            connection.rollback();
+            transactionManager.commit(status); // 트랜잭션 커밋
+        }catch (RuntimeException e) {
+            transactionManager.rollback(status); // 트랜잭션 롤백
             throw e;
-        }finally {
-            DataSourceUtils.releaseConnection(connection,dataSource); // 커넥션 닫기
-            TransactionSynchronizationManager.unbindResource(this.dataSource);
-            TransactionSynchronizationManager.clearSynchronization();
         }
     }
 
