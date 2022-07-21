@@ -1,6 +1,7 @@
 package me.hyeonho.toby.user.dao;
 
 import lombok.NoArgsConstructor;
+import me.hyeonho.toby.user.domain.Level;
 import me.hyeonho.toby.user.domain.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,6 +17,9 @@ public class UserDaoJdbc implements UserDao {
                 .id(rs.getString("id"))
                 .name(rs.getString("name"))
                 .password(rs.getString("password"))
+                .level(Level.valueOf(rs.getInt("level")))
+                .login(rs.getInt("login"))
+                .recommend(rs.getInt("recommend"))
                 .build();
     };
 
@@ -26,8 +30,8 @@ public class UserDaoJdbc implements UserDao {
 
     @Override
     public void add(final User user){
-        jdbcTemplate.update("insert into users(id,name,password) values (?,?,?)",
-                user.getId(),user.getName(),user.getPassword());
+        jdbcTemplate.update("insert into users(id,name,password,level,login,recommend) values (?,?,?,?,?,?)",
+                user.getId(),user.getName(),user.getPassword(),user.getLevel().intValue(),user.getLogin(),user.getRecommend());
     }
 
     @Override
