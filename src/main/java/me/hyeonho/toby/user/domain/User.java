@@ -22,4 +22,27 @@ public class User {
         this.login = login;
         this.recommend = recommend;
     }
+
+    public void initialLevelSetting() {
+        if (this.level == null)
+        this.level = Level.BASIC;
+    }
+
+    public boolean canUpgradeLevel() {
+        switch (this.getLevel()) {
+            case BASIC: return (this.login >= 50);
+            case SILVER: return (this.getRecommend() >= 30);
+            case GOLD: return false;
+            default: throw new IllegalArgumentException("Unknown Level : " + this.getLevel());
+        }
+    }
+
+    public void initializationLevel() {
+        Level nextLevel = this.level.nextLevel();
+        if (nextLevel == null) {
+            throw new IllegalArgumentException(this.level + "은 업그레이드가 불가능합니다.");
+        } else {
+            this.level = nextLevel;
+        }
+    }
 }
