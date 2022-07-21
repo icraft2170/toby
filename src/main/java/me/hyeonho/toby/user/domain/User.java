@@ -29,15 +29,15 @@ public class User {
     }
 
     public boolean canUpgradeLevel() {
-        switch (this.getLevel()) {
+        switch (this.level) {
             case BASIC: return (this.login >= 50);
-            case SILVER: return (this.getRecommend() >= 30);
+            case SILVER: return (this.recommend >= 30);
             case GOLD: return false;
-            default: throw new IllegalArgumentException("Unknown Level : " + this.getLevel());
+            default: throw new IllegalArgumentException("Unknown Level : " + this.level);
         }
     }
 
-    public void initializationLevel() {
+    public void nextLevel() {
         Level nextLevel = this.level.nextLevel();
         if (nextLevel == null) {
             throw new IllegalArgumentException(this.level + "은 업그레이드가 불가능합니다.");
