@@ -3,9 +3,9 @@ package me.hyeonho.toby.user.dao;
 import me.hyeonho.toby.user.domain.Level;
 import me.hyeonho.toby.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -147,4 +147,23 @@ class UserDaoTest {
                     .isInstanceOf(DuplicateKeyException.class);
         }
     }
+
+    @Test
+    @DisplayName("Users 수정 기능")
+    void update() {
+        dao.deleteAll();
+
+        dao.add(user1);
+
+        user1.setName("오민규");
+        user1.setPassword("springno6");
+        user1.setLevel(Level.GOLD);
+        user1.setLogin(1000);
+        user1.setRecommend(999);
+        dao.update(user1);
+
+        User user1update = dao.get(user1.getId());
+        checkSameUser(user1, user1update);
+    }
+
 }
