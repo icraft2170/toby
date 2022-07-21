@@ -6,6 +6,8 @@ import lombok.*;
 @NoArgsConstructor
 public class User {
 
+    public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
+    public static final int MIN_RECCOMEND_FOR_GOLD = 30;
     private String id;
     private String name;
     private String password;
@@ -30,8 +32,8 @@ public class User {
 
     public boolean canUpgradeLevel() {
         switch (this.level) {
-            case BASIC: return (this.login >= 50);
-            case SILVER: return (this.recommend >= 30);
+            case BASIC: return (this.login >= MIN_LOGCOUNT_FOR_SILVER);
+            case SILVER: return (this.recommend >= MIN_RECCOMEND_FOR_GOLD);
             case GOLD: return false;
             default: throw new IllegalArgumentException("Unknown Level : " + this.level);
         }
