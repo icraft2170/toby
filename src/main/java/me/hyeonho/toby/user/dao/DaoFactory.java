@@ -1,8 +1,11 @@
 package me.hyeonho.toby.user.dao;
 
+import me.hyeonho.toby.user.service.UserService;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -25,7 +28,17 @@ public class DaoFactory {
     }
 
     @Bean
+    public PlatformTransactionManager transactionManager(){
+        return new DataSourceTransactionManager(dataSource());
+    }
+
+    @Bean
     public UserDao userDao(){
         return new UserDaoJdbc(dataSource());
+    }
+
+    @Bean
+    public UserService userService(){
+        return new UserService(userDao(), transactionManager());
     }
 }
