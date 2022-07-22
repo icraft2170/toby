@@ -4,13 +4,11 @@ import me.hyeonho.toby.TestDaoFactory;
 import me.hyeonho.toby.user.dao.UserDao;
 import me.hyeonho.toby.user.domain.Level;
 import me.hyeonho.toby.user.domain.User;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -91,6 +89,24 @@ class UserServiceTest {
         } else {
             assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
         }
+    }
+
+
+    static class TestUserService extends UserService {
+        private String id;
+
+        public TestUserService(UserDao userDao) {
+            super(userDao);
+        }
+
+        @Override
+        public void upgradeLevels(User user) {
+            if (user.getId().equals(this.id)) throw new TestUserServiceException();
+            super.upgradeLevels();
+        }
+    }
+
+    static class TestUserServiceException extends RuntimeException {
     }
 
 }

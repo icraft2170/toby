@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public abstract class UserService {
     private final UserDao userDao;
 
     // Batch 처리?
@@ -26,8 +26,10 @@ public class UserService {
         userDao.add(user);
     }
 
-    private void upgradeLevel(User user) {
+    protected void upgradeLevel(User user) {
         user.nextLevel();
         userDao.update(user);
     }
+
+    public abstract void upgradeLevels(User user);
 }
