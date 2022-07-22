@@ -1,6 +1,7 @@
 package me.hyeonho.toby.user.service;
 
 
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import me.hyeonho.toby.user.dao.UserDao;
 import me.hyeonho.toby.user.domain.User;
@@ -10,7 +11,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public abstract class UserService {
+public class UserService {
     private final UserDao userDao;
 
     // Batch 처리?
@@ -30,6 +31,4 @@ public abstract class UserService {
         user.nextLevel();
         userDao.update(user);
     }
-
-    public abstract void upgradeLevels(User user);
 }

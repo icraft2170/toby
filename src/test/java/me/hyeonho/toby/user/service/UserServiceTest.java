@@ -81,6 +81,21 @@ class UserServiceTest {
         assertThat(userWithoutLevelRead.getLevel()).isEqualTo(Level.BASIC);
     }
 
+    @Test
+    void upgradeAllOrNothing() {
+        TestUserService testUserService = new TestUserService(users.get(3).getId(), userDao);
+        userDao.deleteAll();
+        for (User user : users) {
+            userDao.add(user);
+        }
+
+        try {
+            testUserService.upgradeLevels();
+            fail("TestUserServiceException expected");
+        } catch (TestUserServiceException exception) {
+        }
+        checkLevelUpgraded(users.get(1), false);
+    }
 
     private void checkLevelUpgraded(User user, boolean upgraded) {
         User userUpdate = userDao.get(user.getId());
@@ -95,14 +110,15 @@ class UserServiceTest {
     static class TestUserService extends UserService {
         private String id;
 
-        public TestUserService(UserDao userDao) {
+        public TestUserService(String id, UserDao userDao) {
             super(userDao);
+            this.id = id;
         }
 
         @Override
-        public void upgradeLevels(User user) {
+        public void upgradeLevel(User user) {
             if (user.getId().equals(this.id)) throw new TestUserServiceException();
-            super.upgradeLevels();
+            super.upgradeLevel(user);
         }
     }
 
