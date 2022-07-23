@@ -26,6 +26,9 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+	//Mail
+	implementation 'javax.mail:mail:1.5.0-b01'
+	implementation 'org.springframework.boot:spring-boot-starter-mail:2.7.2'
 }
 
 test {

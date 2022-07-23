@@ -35,9 +35,9 @@ class UserDaoTest {
     void setUp(){
         dataSource = getDataSource();
         dao = new UserDaoJdbc(dataSource);
-        user1 = new User("gyumee", "박성철", "springno1", Level.BASIC, 1, 0);
-        user2 = new User("leegw700", "이길원", "springno2", Level.SILVER, 55, 10);
-        user3 = new User("bumjin", "박범진", "springno3", Level.GOLD, 100, 40);
+        user1 = new User("gyumee", "박성철", "springno1", Level.BASIC, 1, 0, "icraft2170@gmail.com");
+        user2 = new User("leegw700", "이길원", "springno2", Level.SILVER, 55, 10, "baro1999@naver.com");
+        user3 = new User("bumjin", "박범진", "springno3", Level.GOLD, 100, 40,"hh.son@bigwalk.co.kr");
     }
 
     private SingleConnectionDataSource getDataSource() {

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -31,6 +32,8 @@ class UserServiceTest {
     private DataSource dataSource;
     @Autowired
     private PlatformTransactionManager transactionManager;
+    @Autowired
+    private MailSender mailSender;
 
     List<User> users;
 
@@ -39,11 +42,11 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         users = Arrays.asList(
-                new User("bumjin", "박범진", "p1", Level.BASIC, User.MIN_LOGCOUNT_FOR_SILVER - 1, 0),
-                new User("joytouch", "강명성", "p2", Level.BASIC, User.MIN_LOGCOUNT_FOR_SILVER, 0),
-                new User("erwins", "신승한", "p3", Level.SILVER, 60, User.MIN_RECCOMEND_FOR_GOLD - 1),
-                new User("madnite1", "이상호", "p4", Level.SILVER, 60, User.MIN_RECCOMEND_FOR_GOLD),
-                new User("green", "오민규", "p5", Level.GOLD, 100, Integer.MAX_VALUE)
+                new User("bumjin", "박범진", "p1", Level.BASIC, User.MIN_LOGCOUNT_FOR_SILVER - 1, 0, "icraft2170@gmail.com"),
+                new User("joytouch", "강명성", "p2", Level.BASIC, User.MIN_LOGCOUNT_FOR_SILVER, 0, "baro1999@naver.com"),
+                new User("erwins", "신승한", "p3", Level.SILVER, 60, User.MIN_RECCOMEND_FOR_GOLD - 1,"hh.son@gmail.com"),
+                new User("madnite1", "이상호", "p4", Level.SILVER, 60, User.MIN_RECCOMEND_FOR_GOLD,"hh.son@bigwalk.co.kr"),
+                new User("green", "오민규", "p5", Level.GOLD, 100, Integer.MAX_VALUE,"hero1227@gmail.com")
         );
     }
 
@@ -91,7 +94,7 @@ class UserServiceTest {
 
     @Test
     void upgradeAllOrNothing() {
-        TestUserService testUserService = new TestUserService(users.get(3).getId(), userDao, dataSource, transactionManager);
+        TestUserService testUserService = new TestUserService(users.get(3).getId(), userDao, dataSource, transactionManager, mailSender);
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
@@ -118,8 +121,8 @@ class UserServiceTest {
     static class TestUserService extends UserService {
         private String id;
 
-        public TestUserService(String id, UserDao userDao, DataSource dataSource, PlatformTransactionManager transactionManager) {
-            super(userDao, transactionManager);
+        public TestUserService(String id, UserDao userDao, DataSource dataSource, PlatformTransactionManager transactionManager, MailSender mailSender) {
+            super(userDao, transactionManager, mailSender);
             this.id = id;
         }
 

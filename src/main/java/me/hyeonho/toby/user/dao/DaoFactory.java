@@ -5,6 +5,9 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
@@ -38,7 +41,14 @@ public class DaoFactory {
     }
 
     @Bean
+    public MailSender mailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost("mail.server.com");
+        return mailSender;
+    }
+
+    @Bean
     public UserService userService(){
-        return new UserService(userDao(), transactionManager());
+        return new UserService(userDao(), transactionManager(), mailSender());
     }
 }

@@ -2,11 +2,13 @@ package me.hyeonho.toby;
 
 import me.hyeonho.toby.user.dao.JdbcContext;
 import me.hyeonho.toby.user.dao.UserDaoJdbc;
+import me.hyeonho.toby.user.service.DummyMailSender;
 import me.hyeonho.toby.user.service.UserService;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.mail.MailSender;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
@@ -39,10 +41,15 @@ public class TestDaoFactory {
         return new DataSourceTransactionManager(dataSource());
     }
 
+    @Bean
+    public MailSender mailSender() {
+        return new DummyMailSender();
+    }
+
 
     @Bean
     public UserService userService(){
-        return new UserService(userDao(), transactionManager());
+        return new UserService(userDao(), transactionManager(), mailSender());
     }
 
 }
