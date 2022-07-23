@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionManager;
 
@@ -28,6 +29,8 @@ class UserServiceTest {
     private UserDao userDao;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserServiceImpl userServiceImpl;
     @Autowired
     private PlatformTransactionManager transactionManager;
     @Autowired
@@ -61,7 +64,9 @@ class UserServiceTest {
         userDao.deleteAll();
         for (User user : users) userDao.add(user);
 
-        userService.upgradeLevels();
+        MockMailSender mockMailSender = new MockMailSender();
+        ReflectionTestUtils.setField(userServiceImpl, "mailSender", mockMailSender);
+        userServiceImpl.upgradeLevels();
 
         checkLevelUpgraded(users.get(0), false);
         checkLevelUpgraded(users.get(1), true);
@@ -69,6 +74,10 @@ class UserServiceTest {
         checkLevelUpgraded(users.get(3), true);
         checkLevelUpgraded(users.get(4), false);
 
+        List<String> requests = mockMailSender.getRequests();
+        assertThat(requests.size()).isEqualTo(2);
+        assertThat(requests.get(0)).isEqualTo(users.get(1).getEmail());
+        assertThat(requests.get(1)).isEqualTo(users.get(3).getEmail());
     }
 
 
