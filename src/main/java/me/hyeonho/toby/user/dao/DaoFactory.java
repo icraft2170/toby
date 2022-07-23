@@ -1,12 +1,13 @@
 package me.hyeonho.toby.user.dao;
 
 import me.hyeonho.toby.user.service.UserService;
+import me.hyeonho.toby.user.service.UserServiceImpl;
+import me.hyeonho.toby.user.service.UserServiceTx;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.mail.MailSender;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -48,7 +49,12 @@ public class DaoFactory {
     }
 
     @Bean
+    public UserServiceImpl userServiceImpl() {
+        return new UserServiceImpl(userDao(), mailSender());
+    }
+
+    @Bean
     public UserService userService(){
-        return new UserService(userDao(), transactionManager(), mailSender());
+        return new UserServiceTx(userServiceImpl(), transactionManager());
     }
 }

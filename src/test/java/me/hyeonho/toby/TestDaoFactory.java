@@ -4,6 +4,8 @@ import me.hyeonho.toby.user.dao.JdbcContext;
 import me.hyeonho.toby.user.dao.UserDaoJdbc;
 import me.hyeonho.toby.user.service.DummyMailSender;
 import me.hyeonho.toby.user.service.UserService;
+import me.hyeonho.toby.user.service.UserServiceImpl;
+import me.hyeonho.toby.user.service.UserServiceTx;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,10 +48,13 @@ public class TestDaoFactory {
         return new DummyMailSender();
     }
 
+    @Bean
+    public UserServiceImpl userServiceImpl() {
+        return new UserServiceImpl(userDao(), mailSender());
+    }
 
     @Bean
     public UserService userService(){
-        return new UserService(userDao(), transactionManager(), mailSender());
+        return new UserServiceTx(userServiceImpl(), transactionManager());
     }
-
 }

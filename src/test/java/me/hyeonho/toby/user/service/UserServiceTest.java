@@ -13,8 +13,8 @@ import org.springframework.mail.MailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionManager;
 
-import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,8 +28,6 @@ class UserServiceTest {
     private UserDao userDao;
     @Autowired
     private UserService userService;
-    @Autowired
-    private DataSource dataSource;
     @Autowired
     private PlatformTransactionManager transactionManager;
     @Autowired
@@ -70,6 +68,7 @@ class UserServiceTest {
         checkLevelUpgraded(users.get(2), false);
         checkLevelUpgraded(users.get(3), true);
         checkLevelUpgraded(users.get(4), false);
+
     }
 
 
@@ -94,14 +93,17 @@ class UserServiceTest {
 
     @Test
     void upgradeAllOrNothing() {
-        TestUserService testUserService = new TestUserService(users.get(3).getId(), userDao, dataSource, transactionManager, mailSender);
+        TestUserService testUserService = new TestUserService(users.get(3).getId(), userDao, mailSender);
+        UserServiceTx txUserService = new UserServiceTx(testUserService, transactionManager);
+
+
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
         }
 
         try {
-            testUserService.upgradeLevels();
+            txUserService.upgradeLevels();
             fail("TestUserServiceException expected");
         } catch (TestUserServiceException exception) {
         }
@@ -118,11 +120,11 @@ class UserServiceTest {
     }
 
 
-    static class TestUserService extends UserService {
+    static class TestUserService extends UserServiceImpl {
         private String id;
 
-        public TestUserService(String id, UserDao userDao, DataSource dataSource, PlatformTransactionManager transactionManager, MailSender mailSender) {
-            super(userDao, transactionManager, mailSender);
+        public TestUserService(String id, UserDao userDao, MailSender mailSender) {
+            super(userDao, mailSender);
             this.id = id;
         }
 
