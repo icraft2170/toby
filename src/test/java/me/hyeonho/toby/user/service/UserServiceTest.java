@@ -1,6 +1,7 @@
 package me.hyeonho.toby.user.service;
 
 import me.hyeonho.toby.TestDaoFactory;
+import me.hyeonho.toby.user.dao.MockUserDao;
 import me.hyeonho.toby.user.dao.UserDao;
 import me.hyeonho.toby.user.domain.Level;
 import me.hyeonho.toby.user.domain.User;
@@ -14,7 +15,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,8 +29,6 @@ class UserServiceTest {
     private UserDao userDao;
     @Autowired
     private UserService userService;
-    @Autowired
-    private UserServiceImpl userServiceImpl;
     @Autowired
     private PlatformTransactionManager transactionManager;
     @Autowired
@@ -61,23 +59,25 @@ class UserServiceTest {
     @Test
     @DisplayName("전체 유저 레벨 업그레이드 배치 처리")
     void upgradeLevels() {
-        userDao.deleteAll();
-        for (User user : users) userDao.add(user);
-
+        MockUserDao mockUserDao = new MockUserDao(this.users);
         MockMailSender mockMailSender = new MockMailSender();
-        ReflectionTestUtils.setField(userServiceImpl, "mailSender", mockMailSender);
-        userServiceImpl.upgradeLevels();
+        UserServiceImpl userService = new UserServiceImpl(mockUserDao, mockMailSender);
+        userService.upgradeLevels();
 
-        checkLevelUpgraded(users.get(0), false);
-        checkLevelUpgraded(users.get(1), true);
-        checkLevelUpgraded(users.get(2), false);
-        checkLevelUpgraded(users.get(3), true);
-        checkLevelUpgraded(users.get(4), false);
+        List<User> updated = mockUserDao.getUpdated();
+        assertThat(updated.size()).isEqualTo(2);
+        checkUserAndLevel(updated.get(0), "joytouch", Level.SILVER);
+        checkUserAndLevel(updated.get(1), "madnite1", Level.GOLD);
 
         List<String> requests = mockMailSender.getRequests();
         assertThat(requests.size()).isEqualTo(2);
         assertThat(requests.get(0)).isEqualTo(users.get(1).getEmail());
         assertThat(requests.get(1)).isEqualTo(users.get(3).getEmail());
+    }
+
+    private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {
+        assertThat(updated.getId()).isEqualTo(expectedId);
+        assertThat(updated.getLevel()).isEqualTo(expectedLevel);
     }
 
 
