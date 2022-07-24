@@ -1,5 +1,6 @@
 package me.hyeonho.toby.user.dao;
 
+import me.hyeonho.toby.user.service.TxProxyFactoryBean;
 import me.hyeonho.toby.user.service.UserService;
 import me.hyeonho.toby.user.service.UserServiceImpl;
 import me.hyeonho.toby.user.service.UserServiceTx;
@@ -54,7 +55,12 @@ public class DaoFactory {
     }
 
     @Bean
-    public UserService userService(){
-        return new UserServiceTx(userServiceImpl(), transactionManager());
+    public TxProxyFactoryBean userService(){
+        return new TxProxyFactoryBean(
+                userServiceImpl(),
+                transactionManager(),
+                "upgradeLevels",
+                UserService.class
+        );
     }
 }

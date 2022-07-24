@@ -2,10 +2,7 @@ package me.hyeonho.toby;
 
 import me.hyeonho.toby.user.dao.JdbcContext;
 import me.hyeonho.toby.user.dao.UserDaoJdbc;
-import me.hyeonho.toby.user.service.DummyMailSender;
-import me.hyeonho.toby.user.service.UserService;
-import me.hyeonho.toby.user.service.UserServiceImpl;
-import me.hyeonho.toby.user.service.UserServiceTx;
+import me.hyeonho.toby.user.service.*;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,7 +51,12 @@ public class TestDaoFactory {
     }
 
     @Bean
-    public UserService userService(){
-        return new UserServiceTx(userServiceImpl(), transactionManager());
+    public TxProxyFactoryBean userService(){
+        return new TxProxyFactoryBean(
+                userServiceImpl(),
+                transactionManager(),
+                "upgradeLevels",
+                UserService.class
+        );
     }
 }
