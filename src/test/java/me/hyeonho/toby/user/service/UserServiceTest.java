@@ -1,6 +1,7 @@
 package me.hyeonho.toby.user.service;
 
 import me.hyeonho.toby.TestDaoFactory;
+import me.hyeonho.toby.common.TransactionHandler;
 import me.hyeonho.toby.user.dao.MockUserDao;
 import me.hyeonho.toby.user.dao.UserDao;
 import me.hyeonho.toby.user.domain.Level;
@@ -17,6 +18,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
 
@@ -126,8 +128,12 @@ class UserServiceTest {
     @Test
     void upgradeAllOrNothing() {
         TestUserService testUserService = new TestUserService(users.get(3).getId(), userDao, mailSender);
-        UserServiceTx txUserService = new UserServiceTx(testUserService, transactionManager);
-
+        TransactionHandler txHandler = new TransactionHandler(testUserService, transactionManager, "upgradeLevels");
+        UserService txUserService = (UserService) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[]{UserService.class},
+                txHandler
+        );
 
         userDao.deleteAll();
         for (User user : users) {
