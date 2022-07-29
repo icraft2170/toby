@@ -4,7 +4,8 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.framework.ProxyFactoryBean;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 
 import java.lang.reflect.Proxy;
 
@@ -47,6 +48,24 @@ public class DynamicProxyTest {
         assertThat(proxiedHello.sayHello("Toby")).isEqualTo("HELLO TOBY");
         assertThat(proxiedHello.sayHi("Toby")).isEqualTo("HI TOBY");
         assertThat(proxiedHello.sayThankYou("Toby")).isEqualTo("THANK YOU TOBY");
+    }
+
+    @Test
+    void pointcutAdvisor() {
+        ProxyFactoryBean pfBean = new ProxyFactoryBean();
+        pfBean.setTarget(new HelloTarget());
+
+        // 포인트 컷 : 부가기능을 적용할 메서드 선정 알고리즘
+        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+        // sayH로 시작하는 메서드를 선정한다.
+        pointcut.setMappedName("sayH*");
+
+        pfBean.addAdvisor(new DefaultPointcutAdvisor(pointcut, new UpperCaseAdvice()));
+
+        Hello proxiedHello = (Hello) pfBean.getObject();
+        assertThat(proxiedHello.sayHello("Toby")).isEqualTo("HELLO TOBY");
+        assertThat(proxiedHello.sayHi("Toby")).isEqualTo("HI TOBY");
+        assertThat(proxiedHello.sayThankYou("Toby")).isEqualTo("Thank You Toby");
     }
 
     static class UpperCaseAdvice implements MethodInterceptor {
