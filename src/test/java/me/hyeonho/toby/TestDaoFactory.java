@@ -1,5 +1,7 @@
 package me.hyeonho.toby;
 
+import me.hyeonho.toby.learningtest.dynmaicProxy.Message;
+import me.hyeonho.toby.learningtest.dynmaicProxy.MessageFactoryBean;
 import me.hyeonho.toby.user.dao.JdbcContext;
 import me.hyeonho.toby.user.dao.UserDaoJdbc;
 import me.hyeonho.toby.user.service.*;
@@ -58,5 +60,10 @@ public class TestDaoFactory {
                 "upgradeLevels",
                 UserService.class
         );
+    }
+
+    @Bean(name = "message")
+    public MessageFactoryBean messageFactoryBean() {
+        return new MessageFactoryBean("Factory Bean");
     }
 }
