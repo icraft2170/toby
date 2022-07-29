@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailSender;
@@ -130,9 +131,9 @@ class UserServiceTest {
     @DirtiesContext
     void upgradeAllOrNothing() throws Exception {
         TestUserService testUserService = new TestUserService(users.get(3).getId(), userDao, mailSender);
-        TxProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", TxProxyFactoryBean.class);
-        ReflectionTestUtils.setField(txProxyFactoryBean, "target", testUserService);
-        UserService txUserService = (UserService) txProxyFactoryBean.getObject();
+        ProxyFactoryBean proxyFactoryBean = context.getBean("&userService", ProxyFactoryBean.class);
+        proxyFactoryBean.setTarget(testUserService);
+        UserService txUserService = (UserService) proxyFactoryBean.getObject();
 
         userDao.deleteAll();
         for (User user : users) {

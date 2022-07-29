@@ -5,6 +5,9 @@ import me.hyeonho.toby.learningtest.dynmaicProxy.MessageFactoryBean;
 import me.hyeonho.toby.user.dao.JdbcContext;
 import me.hyeonho.toby.user.dao.UserDaoJdbc;
 import me.hyeonho.toby.user.service.*;
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,16 +55,31 @@ public class TestDaoFactory {
         return new UserServiceImpl(userDao(), mailSender());
     }
 
+
     @Bean
-    public TxProxyFactoryBean userService(){
-        return new TxProxyFactoryBean(
-                userServiceImpl(),
-                transactionManager(),
-                "upgradeLevels",
-                UserService.class
-        );
+    public TransactionAdvice transactionAdvice() {
+        return new TransactionAdvice(transactionManager());
     }
 
+    @Bean
+    public NameMatchMethodPointcut methodPointcut() {
+        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+        pointcut.setMappedName("upgrade*");
+        return pointcut;
+    }
+
+    @Bean(name = "transactionAdvisor")
+    public DefaultPointcutAdvisor transactionAdvisor() {
+        return new DefaultPointcutAdvisor(methodPointcut(), transactionAdvice());
+    }
+
+    @Bean
+    public ProxyFactoryBean userService() {
+        ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
+        proxyFactoryBean.setTarget(userServiceImpl());
+        proxyFactoryBean.setInterceptorNames("transactionAdvisor");
+        return proxyFactoryBean;
+    }
     @Bean(name = "message")
     public MessageFactoryBean messageFactoryBean() {
         return new MessageFactoryBean("Factory Bean");
