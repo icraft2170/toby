@@ -1,12 +1,10 @@
 package me.hyeonho.toby.user.domain;
 
 public enum Level {
-    // Enum은 순서가 중요하구나...
-    GOLD(3,null),SILVER(2,GOLD),BASIC(1,SILVER);
+    GOLD(3, null), SILVER(2, GOLD) ,BASIC(1, SILVER);
 
     private final int value;
     private final Level next;
-
 
     Level(int value, Level next) {
         this.value = value;

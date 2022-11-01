@@ -9,8 +9,6 @@ import java.sql.SQLException;
 import static org.assertj.core.api.Assertions.*;
 
 class CountingConnectionMakerTest {
-
-
     @Test
     void 데코레이터_패턴을_이용한_OCP를_지키고_기능추가() throws SQLException, ClassNotFoundException {
         AnnotationConfigApplicationContext context =

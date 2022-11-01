@@ -1,12 +1,12 @@
 package me.hyeonho.toby.user.dao;
 
-import me.hyeonho.toby.TestDaoFactory;
+
 import me.hyeonho.toby.user.domain.Level;
 import me.hyeonho.toby.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -37,9 +37,9 @@ class UserDaoTest {
     void setUp(){
         dataSource = getDataSource();
         dao = new UserDaoJdbc(dataSource);
-        user1 = new User("gyumee", "박성철", "springno1", Level.BASIC,1,0);
-        user2 = new User("leegw700", "이길원", "springno2",Level.SILVER,55,10);
-        user3 = new User("bumjin", "박범진", "springno3",Level.GOLD,100,40);
+        user1 = new User("gyumee", "박성철", "springno1", Level.BASIC, 1, 0, "icraft2170@gmail.com");
+        user2 = new User("leegw700", "이길원", "springno2", Level.SILVER, 55, 10, "baro1999@naver.com");
+        user3 = new User("bumjin", "박범진", "springno3", Level.GOLD, 100, 40,"hh.son@bigwalk.co.kr");
     }
 
     private SingleConnectionDataSource getDataSource() {
@@ -50,7 +50,7 @@ class UserDaoTest {
 
 
     @Test
-    void addAndGet() throws SQLException{
+    void addAndGet() {
         dao.deleteAll();
         assertThat(dao.getCount()).isEqualTo(0);
 
@@ -59,14 +59,14 @@ class UserDaoTest {
         assertThat(dao.getCount()).isEqualTo(2);
 
         User userGet1 = dao.get(user1.getId());
-        checkSameUser(userGet1,user1);
+        checkSameUser(userGet1, user1);
 
         User userGet2 = dao.get(user2.getId());
-        checkSameUser(userGet2,user2);
+        checkSameUser(userGet2, user2);
     }
 
     @Test
-    void count_테스트() throws SQLException {
+    void count_테스트(){
         dao.deleteAll();
         assertThat(dao.getCount()).isEqualTo(0);
 
@@ -81,7 +81,7 @@ class UserDaoTest {
     }
 
     @Test
-    void getUser_실패() throws SQLException {
+    void getUser_실패(){
         dao.deleteAll();
         assertThat(dao.getCount()).isEqualTo(0);
 
@@ -89,7 +89,7 @@ class UserDaoTest {
     }
 
     @Test
-    void getAll() throws SQLException {
+    void getAll(){
         dao.deleteAll();
 
         List<User> users0 = dao.getAll();
@@ -151,22 +151,24 @@ class UserDaoTest {
     }
 
     @Test
-    void 유저_수정() {
+    @DisplayName("Users 수정 기능")
+    void update() {
         dao.deleteAll();
 
         dao.add(user1);
         dao.add(user2);
 
         user1.setName("오민규");
-        user1.setPassword("spring6");
+        user1.setPassword("springno6");
         user1.setLevel(Level.GOLD);
         user1.setLogin(1000);
         user1.setRecommend(999);
         dao.update(user1);
 
         User user1update = dao.get(user1.getId());
-        checkSameUser(user1,user1update);
+        checkSameUser(user1, user1update);
         User user2same = dao.get(user2.getId());
-        checkSameUser(user2,user2same);
+        checkSameUser(user2, user2same);
     }
+
 }
