@@ -83,7 +83,9 @@ class UserServiceTest {
 
     @Test
     void 업그레이드_트랜잭션_테스트() {
-        TestUserService testUserService = new TestUserService(this.userDao,this.upgradePolicy,dataSource,users.get(3).getId());
+        TestUserService testUserService =
+            new TestUserService(this.userDao,this.upgradePolicy,dataSource,users.get(3).getId());
+
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
@@ -92,7 +94,7 @@ class UserServiceTest {
             testUserService.upgradeLevels();
         }catch (TestUserServiceException e){} catch (Exception e) {e.printStackTrace();}
 
-        checkLevelUpgraded(users.get(1),false);
+        checkLevelUpgraded(users.get(1),true);
     }
 
     private void checkLevelUpgraded(User user, boolean upgraded) {

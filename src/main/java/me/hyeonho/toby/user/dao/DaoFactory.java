@@ -16,9 +16,9 @@ public class DaoFactory {
     public DataSource dataSource(){
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.driverClassName("com.mysql.cj.jdbc.Driver");
-        dataSourceBuilder.url("jdbc:mysql://localhost/toby");
+        dataSourceBuilder.url("jdbc:mysql://127.0.0.1:3306/toby?rewriteBatchedStatements=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul");
         dataSourceBuilder.username("toby");
-        dataSourceBuilder.password("see3470");
+        dataSourceBuilder.password("root");
         return dataSourceBuilder.build();
     }
 

@@ -29,7 +29,6 @@ public class UserService {
 
         TransactionStatus status =
                 transactionManager.getTransaction(new DefaultTransactionDefinition());
-
         try {
             List<User> users = userDao.getAll();
             for (User user : users) {

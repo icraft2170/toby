@@ -1,5 +1,6 @@
 package me.hyeonho.toby.user.dao;
 
+import me.hyeonho.toby.TestDaoFactory;
 import me.hyeonho.toby.user.domain.Level;
 import me.hyeonho.toby.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
@@ -42,7 +44,7 @@ class UserDaoTest {
 
     private SingleConnectionDataSource getDataSource() {
         return new SingleConnectionDataSource(
-                "jdbc:mysql://localhost/toby", "toby", "see3470", true
+                "jdbc:mysql://127.0.0.1:3306/toby", "toby", "root", true
         );
     }
 
