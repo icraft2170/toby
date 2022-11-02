@@ -42,7 +42,7 @@ class UserDaoTest {
 
     private SingleConnectionDataSource getDataSource() {
         return new SingleConnectionDataSource(
-                "jdbc:mysql://localhost/toby", "toby", "see3470", true
+                "jdbc:mysql://localhost/toby", "toby", "root", true
         );
     }
 
