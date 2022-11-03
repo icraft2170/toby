@@ -33,7 +33,7 @@ public class DaoFactory {
     }
 
     @Bean
-    public UserService userService(){return new UserService(userDao(), userLevelUpgradePolicy()); }
+    public UserService userService(){return new UserService(userDao(), userLevelUpgradePolicy(), dataSource()); }
 
     @Bean
     public UserLevelUpgradePolicy userLevelUpgradePolicy(){return new UserLevelUpgradePolicyImpl(userDao()); }

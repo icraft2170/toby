@@ -1,5 +1,6 @@
 package me.hyeonho.toby.user.service;
 
+import javax.sql.DataSource;
 import me.hyeonho.toby.TestDaoFactory;
 import me.hyeonho.toby.user.dao.UserDao;
 import me.hyeonho.toby.user.domain.Level;
@@ -27,6 +28,9 @@ class UserServiceTest {
     @Autowired
     UserDao userDao;
 
+    @Autowired
+    DataSource dataSource;
+
 
     List<User> users;
 
@@ -43,7 +47,7 @@ class UserServiceTest {
 
 
     @Test
-    void 업그레이드_레벨() {
+    void 업그레이드_레벨() throws Exception {
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
@@ -60,7 +64,7 @@ class UserServiceTest {
     }
 
     @Test
-    void 업그레이드_레벨_트랜잭션() {
+    void 업그레이드_레벨_트랜잭션() throws Exception {
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
@@ -96,7 +100,7 @@ class UserServiceTest {
         for (User user : users) {
             userDao.add(user);
         }
-        UserService testUserService = new TestUserService(userDao, users.get(3).getId());
+        UserService testUserService = new TestUserService(userDao, users.get(3).getId(), dataSource);
 
         assertThrows(TestUserLevelUpgradePolicyException.class, testUserService::upgradeLevels);
         checkLevel(users.get(1), false);
@@ -116,8 +120,8 @@ class UserServiceTest {
 
     static class TestUserService extends UserService {
 
-        public TestUserService(UserDao userDao, String id) {
-            super(userDao, new TestUserLevelUpgradePolicy(userDao, id));
+        public TestUserService(UserDao userDao, String id, DataSource dataSource) {
+            super(userDao, new TestUserLevelUpgradePolicy(userDao, id), dataSource);
         }
 
         @Override
@@ -131,7 +135,7 @@ class UserServiceTest {
         }
 
         @Override
-        public void upgradeLevels() {
+        public void upgradeLevels() throws Exception {
             super.upgradeLevels();
         }
 
