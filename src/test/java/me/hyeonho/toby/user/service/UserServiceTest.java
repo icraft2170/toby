@@ -1,6 +1,5 @@
 package me.hyeonho.toby.user.service;
 
-import javax.sql.DataSource;
 import me.hyeonho.toby.TestDaoFactory;
 import me.hyeonho.toby.user.dao.UserDao;
 import me.hyeonho.toby.user.domain.Level;
@@ -14,6 +13,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import static me.hyeonho.toby.user.service.UserLevelUpgradePolicyImpl.MIN_LOGCOUNT_FOR_SILVER;
 import static me.hyeonho.toby.user.service.UserLevelUpgradePolicyImpl.MIN_RECCOMEND_FOR_GOLD;
@@ -29,7 +29,7 @@ class UserServiceTest {
     UserDao userDao;
 
     @Autowired
-    DataSource dataSource;
+    PlatformTransactionManager platformTransactionManager;
 
 
     List<User> users;
@@ -100,7 +100,7 @@ class UserServiceTest {
         for (User user : users) {
             userDao.add(user);
         }
-        UserService testUserService = new TestUserService(userDao, users.get(3).getId(), dataSource);
+        UserService testUserService = new TestUserService(userDao, users.get(3).getId(), platformTransactionManager);
 
         assertThrows(TestUserLevelUpgradePolicyException.class, testUserService::upgradeLevels);
         checkLevel(users.get(1), false);
@@ -120,8 +120,8 @@ class UserServiceTest {
 
     static class TestUserService extends UserService {
 
-        public TestUserService(UserDao userDao, String id, DataSource dataSource) {
-            super(userDao, new TestUserLevelUpgradePolicy(userDao, id), dataSource);
+        public TestUserService(UserDao userDao, String id, PlatformTransactionManager platformTransactionManager) {
+            super(userDao, new TestUserLevelUpgradePolicy(userDao, id), platformTransactionManager);
         }
 
         @Override

@@ -22,12 +22,10 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class UserService {
     private final UserDao userDao;
     private final UserLevelUpgradePolicy userLevelUpgradePolicy;
-
-    private final DataSource dataSource;
+    private final PlatformTransactionManager transactionManager;
 
     public void upgradeLevels() throws Exception {
-        PlatformTransactionManager transactionManager =
-            new DataSourceTransactionManager(dataSource);
+
         TransactionStatus status = transactionManager
             .getTransaction(new DefaultTransactionDefinition());
         try {

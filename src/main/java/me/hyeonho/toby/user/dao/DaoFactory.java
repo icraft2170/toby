@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 public class DaoFactory {
@@ -33,7 +35,11 @@ public class DaoFactory {
     }
 
     @Bean
-    public UserService userService(){return new UserService(userDao(), userLevelUpgradePolicy(), dataSource()); }
+    public PlatformTransactionManager platformTransactionManager() {
+        return new DataSourceTransactionManager(dataSource());
+    }
+    @Bean
+    public UserService userService(){return new UserService(userDao(), userLevelUpgradePolicy(), platformTransactionManager()); }
 
     @Bean
     public UserLevelUpgradePolicy userLevelUpgradePolicy(){return new UserLevelUpgradePolicyImpl(userDao()); }
