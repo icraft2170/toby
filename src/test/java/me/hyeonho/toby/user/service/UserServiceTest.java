@@ -73,7 +73,7 @@ class UserServiceTest {
 
         userService.upgradeLevels();
 
-        checkLevel(users.get(1), false);
+        checkLevel(users.get(1), true);
     }
 
     @Test

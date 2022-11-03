@@ -10,7 +10,11 @@ import me.hyeonho.toby.user.domain.Level;
 import me.hyeonho.toby.user.domain.User;
 
 import java.util.List;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @RequiredArgsConstructor
@@ -22,9 +26,10 @@ public class UserService {
     private final DataSource dataSource;
 
     public void upgradeLevels() throws Exception {
-        TransactionSynchronizationManager.initSynchronization();
-        Connection connection = DataSourceUtils.getConnection(dataSource);
-        connection.setAutoCommit(false);
+        PlatformTransactionManager transactionManager =
+            new DataSourceTransactionManager(dataSource);
+        TransactionStatus status = transactionManager
+            .getTransaction(new DefaultTransactionDefinition());
         try {
             List<User> users = userDao.getAll();
             for (User user : users) {
@@ -32,13 +37,10 @@ public class UserService {
                     userLevelUpgradePolicy.upgradeLevel(user);
                 }
             }
+            transactionManager.commit(status);
         } catch (Exception e) {
-            connection.rollback();
+            transactionManager.rollback(status);
             throw e;
-        } finally {
-            DataSourceUtils.releaseConnection(connection, dataSource);
-            TransactionSynchronizationManager.unbindResource(dataSource);
-            TransactionSynchronizationManager.clearSynchronization();
         }
     }
 
