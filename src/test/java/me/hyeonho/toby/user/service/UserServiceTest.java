@@ -17,6 +17,7 @@ import java.util.List;
 import static me.hyeonho.toby.user.service.UserLevelUpgradePolicyImpl.MIN_LOGCOUNT_FOR_SILVER;
 import static me.hyeonho.toby.user.service.UserLevelUpgradePolicyImpl.MIN_RECCOMEND_FOR_GOLD;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestDaoFactory.class})
@@ -59,6 +60,19 @@ class UserServiceTest {
     }
 
     @Test
+    void 업그레이드_레벨_트랜잭션() {
+        userDao.deleteAll();
+        for (User user : users) {
+            userDao.add(user);
+        }
+
+
+        userService.upgradeLevels();
+
+        checkLevel(users.get(1), false);
+    }
+
+    @Test
     void add() {
         userDao.deleteAll();
 
@@ -76,6 +90,20 @@ class UserServiceTest {
         assertThat(userWithoutLevelRead.getLevel()).isEqualTo(Level.BASIC);
     }
 
+    @Test
+    void upgradeAllOrNothing() {
+        userDao.deleteAll();
+        for (User user : users) {
+            userDao.add(user);
+        }
+        UserService testUserService = new TestUserService(userDao, users.get(3).getId());
+
+        assertThrows(TestUserLevelUpgradePolicyException.class, testUserService::upgradeLevels);
+        checkLevel(users.get(1), false);
+        checkLevel(users.get(3), false);
+    }
+
+
     private void checkLevel(User user, boolean upgraded) {
         User userUpdate = userDao.get(user.getId());
         if (upgraded) {
@@ -84,4 +112,49 @@ class UserServiceTest {
             assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
         }
     }
+
+
+    static class TestUserService extends UserService {
+
+        public TestUserService(UserDao userDao, String id) {
+            super(userDao, new TestUserLevelUpgradePolicy(userDao, id));
+        }
+
+        @Override
+        public UserDao getUserDao() {
+            return super.getUserDao();
+        }
+
+        @Override
+        public UserLevelUpgradePolicy getUserLevelUpgradePolicy() {
+            return super.getUserLevelUpgradePolicy();
+        }
+
+        @Override
+        public void upgradeLevels() {
+            super.upgradeLevels();
+        }
+
+        @Override
+        public void add(User user) {
+            super.add(user);
+        }
+    }
+
+    static class TestUserLevelUpgradePolicy extends UserLevelUpgradePolicyImpl {
+        private String id;
+
+        public TestUserLevelUpgradePolicy(UserDao userDao, String id) {
+            super(userDao);
+            this.id = id;
+        }
+
+        @Override
+        public void upgradeLevel(User user) {
+            if (user.getId().equals(id)) throw new TestUserLevelUpgradePolicyException();
+            super.upgradeLevel(user);
+        }
+    }
+
+    static class TestUserLevelUpgradePolicyException extends RuntimeException{}
 }
