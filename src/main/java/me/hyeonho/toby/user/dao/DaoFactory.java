@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -42,5 +44,12 @@ public class DaoFactory {
     public UserService userService(){return new UserService(userDao(), userLevelUpgradePolicy(), platformTransactionManager()); }
 
     @Bean
-    public UserLevelUpgradePolicy userLevelUpgradePolicy(){return new UserLevelUpgradePolicyImpl(userDao()); }
+    public MailSender mailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost("mail.server.com");
+        return mailSender;
+    }
+
+    @Bean
+    public UserLevelUpgradePolicy userLevelUpgradePolicy(){return new UserLevelUpgradePolicyImpl(userDao(), mailSender()); }
 }

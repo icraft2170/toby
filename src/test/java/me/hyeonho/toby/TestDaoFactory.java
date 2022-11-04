@@ -2,6 +2,7 @@ package me.hyeonho.toby;
 
 import me.hyeonho.toby.user.dao.JdbcContext;
 import me.hyeonho.toby.user.dao.UserDaoJdbc;
+import me.hyeonho.toby.user.service.DummyMailSender;
 import me.hyeonho.toby.user.service.UserLevelUpgradePolicy;
 import me.hyeonho.toby.user.service.UserLevelUpgradePolicyImpl;
 import me.hyeonho.toby.user.service.UserService;
@@ -11,6 +12,8 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -45,5 +48,11 @@ public class TestDaoFactory {
     public UserService userService(){return new UserService(userDao(), userLevelUpgradePolicy(), platformTransactionManager()); }
 
     @Bean
-    public UserLevelUpgradePolicy userLevelUpgradePolicy(){return new UserLevelUpgradePolicyImpl(userDao()); }
+    public MailSender mailSender() {
+        DummyMailSender dummyMailSender = new DummyMailSender();
+        return dummyMailSender;
+    }
+
+    @Bean
+    public UserLevelUpgradePolicy userLevelUpgradePolicy(){return new UserLevelUpgradePolicyImpl(userDao(), mailSender()); }
 }

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -27,6 +28,9 @@ class UserServiceTest {
     UserService userService;
     @Autowired
     UserDao userDao;
+
+    @Autowired
+    MailSender mailSender;
 
     @Autowired
     PlatformTransactionManager platformTransactionManager;
@@ -100,7 +104,7 @@ class UserServiceTest {
         for (User user : users) {
             userDao.add(user);
         }
-        UserService testUserService = new TestUserService(userDao, users.get(3).getId(), platformTransactionManager);
+        UserService testUserService = new TestUserService(userDao, users.get(3).getId(), platformTransactionManager, mailSender);
 
         assertThrows(TestUserLevelUpgradePolicyException.class, testUserService::upgradeLevels);
         checkLevel(users.get(1), false);
@@ -120,8 +124,8 @@ class UserServiceTest {
 
     static class TestUserService extends UserService {
 
-        public TestUserService(UserDao userDao, String id, PlatformTransactionManager platformTransactionManager) {
-            super(userDao, new TestUserLevelUpgradePolicy(userDao, id), platformTransactionManager);
+        public TestUserService(UserDao userDao, String id, PlatformTransactionManager platformTransactionManager, MailSender mailSender) {
+            super(userDao, new TestUserLevelUpgradePolicy(userDao, mailSender,id), platformTransactionManager);
         }
 
         @Override
@@ -148,8 +152,8 @@ class UserServiceTest {
     static class TestUserLevelUpgradePolicy extends UserLevelUpgradePolicyImpl {
         private String id;
 
-        public TestUserLevelUpgradePolicy(UserDao userDao, String id) {
-            super(userDao);
+        public TestUserLevelUpgradePolicy(UserDao userDao, MailSender mailSender ,String id) {
+            super(userDao, mailSender);
             this.id = id;
         }
 
