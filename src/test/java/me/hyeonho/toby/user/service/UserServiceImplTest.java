@@ -23,9 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestDaoFactory.class})
-class UserServiceTest {
+class UserServiceImplTest {
     @Autowired
-    UserService userService;
+    UserServiceImpl userServiceImpl;
     @Autowired
     UserDao userDao;
 
@@ -57,7 +57,7 @@ class UserServiceTest {
             userDao.add(user);
         }
 
-        userService.upgradeLevels();
+        userServiceImpl.upgradeLevels();
 
         checkLevel(users.get(0), false);
         checkLevel(users.get(1), true);
@@ -75,7 +75,7 @@ class UserServiceTest {
         }
 
 
-        userService.upgradeLevels();
+        userServiceImpl.upgradeLevels();
 
         checkLevel(users.get(1), true);
     }
@@ -88,8 +88,8 @@ class UserServiceTest {
         User userWithoutLevel = users.get(0);
         userWithoutLevel.setLevel(null);
 
-        userService.add(userWithLevel);
-        userService.add(userWithoutLevel);
+        userServiceImpl.add(userWithLevel);
+        userServiceImpl.add(userWithoutLevel);
 
         User userWithLevelRead = userDao.get(userWithLevel.getId());
         User userWithoutLevelRead = userDao.get(userWithoutLevel.getId());
@@ -104,9 +104,9 @@ class UserServiceTest {
         for (User user : users) {
             userDao.add(user);
         }
-        UserService testUserService = new TestUserService(userDao, users.get(3).getId(), platformTransactionManager, mailSender);
+        UserServiceImpl testUserServiceImpl = new TestUserServiceImpl(userDao, users.get(3).getId(), platformTransactionManager, mailSender);
 
-        assertThrows(TestUserLevelUpgradePolicyException.class, testUserService::upgradeLevels);
+        assertThrows(TestUserLevelUpgradePolicyException.class, testUserServiceImpl::upgradeLevels);
         checkLevel(users.get(1), false);
         checkLevel(users.get(3), false);
     }
@@ -122,9 +122,9 @@ class UserServiceTest {
     }
 
 
-    static class TestUserService extends UserService {
+    static class TestUserServiceImpl extends UserServiceImpl {
 
-        public TestUserService(UserDao userDao, String id, PlatformTransactionManager platformTransactionManager, MailSender mailSender) {
+        public TestUserServiceImpl(UserDao userDao, String id, PlatformTransactionManager platformTransactionManager, MailSender mailSender) {
             super(userDao, new TestUserLevelUpgradePolicy(userDao, mailSender,id), platformTransactionManager);
         }
 
