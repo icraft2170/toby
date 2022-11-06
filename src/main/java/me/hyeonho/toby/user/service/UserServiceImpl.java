@@ -7,31 +7,14 @@ import me.hyeonho.toby.user.domain.Level;
 import me.hyeonho.toby.user.domain.User;
 
 import java.util.List;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 @RequiredArgsConstructor
 @Getter
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
     private final UserLevelUpgradePolicy userLevelUpgradePolicy;
-    private final PlatformTransactionManager transactionManager;
 
-    public void upgradeLevels() throws Exception {
-
-        TransactionStatus status = transactionManager
-            .getTransaction(new DefaultTransactionDefinition());
-        try {
-            upgradeLevelsInternal();
-            transactionManager.commit(status);
-        } catch (Exception e) {
-            transactionManager.rollback(status);
-            throw e;
-        }
-    }
-
-    private void upgradeLevelsInternal() {
+    public void upgradeLevels() {
         List<User> users = userDao.getAll();
         for (User user : users) {
             if (userLevelUpgradePolicy.canUpgradeLevel(user)) {
@@ -39,6 +22,7 @@ public class UserServiceImpl implements UserService {
             }
         }
     }
+
 
     public void add(User user) {
         if(user.getLevel() == null) user.setLevel(Level.BASIC);

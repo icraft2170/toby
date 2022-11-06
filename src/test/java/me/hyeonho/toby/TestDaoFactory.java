@@ -7,6 +7,7 @@ import me.hyeonho.toby.user.service.UserLevelUpgradePolicy;
 import me.hyeonho.toby.user.service.UserLevelUpgradePolicyImpl;
 import me.hyeonho.toby.user.service.UserService;
 import me.hyeonho.toby.user.service.UserServiceImpl;
+import me.hyeonho.toby.user.service.UserServiceTx;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,7 +46,7 @@ public class TestDaoFactory {
         return new DataSourceTransactionManager(dataSource());
     }
     @Bean
-    public UserService userService(){return new UserServiceImpl(userDao(), userLevelUpgradePolicy(), platformTransactionManager()); }
+    public UserService userService(){return new UserServiceTx(new UserServiceImpl(userDao(), userLevelUpgradePolicy()), platformTransactionManager()); }
 
     @Bean
     public MailSender mailSender() {
