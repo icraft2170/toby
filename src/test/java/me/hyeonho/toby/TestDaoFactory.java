@@ -1,13 +1,14 @@
 package me.hyeonho.toby;
 
+import java.lang.reflect.Proxy;
 import me.hyeonho.toby.user.dao.JdbcContext;
 import me.hyeonho.toby.user.dao.UserDaoJdbc;
 import me.hyeonho.toby.user.service.DummyMailSender;
+import me.hyeonho.toby.user.service.TransactionHandler;
 import me.hyeonho.toby.user.service.UserLevelUpgradePolicy;
 import me.hyeonho.toby.user.service.UserLevelUpgradePolicyImpl;
 import me.hyeonho.toby.user.service.UserService;
 import me.hyeonho.toby.user.service.UserServiceImpl;
-import me.hyeonho.toby.user.service.UserServiceTx;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,7 +47,13 @@ public class TestDaoFactory {
         return new DataSourceTransactionManager(dataSource());
     }
     @Bean
-    public UserService userService(){return new UserServiceTx(new UserServiceImpl(userDao(), userLevelUpgradePolicy()), platformTransactionManager()); }
+    public UserService userService(){
+        return (UserService) Proxy.newProxyInstance(
+            getClass().getClassLoader(),
+            new Class[]{UserService.class},
+            new TransactionHandler(new UserServiceImpl(userDao(), userLevelUpgradePolicy()), platformTransactionManager(), "upgradeLevels")
+        );
+    }
 
     @Bean
     public MailSender mailSender() {

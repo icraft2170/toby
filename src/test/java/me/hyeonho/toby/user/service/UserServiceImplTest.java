@@ -1,5 +1,6 @@
 package me.hyeonho.toby.user.service;
 
+import java.lang.reflect.Proxy;
 import me.hyeonho.toby.TestDaoFactory;
 import me.hyeonho.toby.user.dao.UserDao;
 import me.hyeonho.toby.user.domain.Level;
@@ -104,9 +105,19 @@ class UserServiceImplTest {
         for (User user : users) {
             userDao.add(user);
         }
-        UserService testUserService = new TestUserServiceImpl(userDao, users.get(3).getId(), platformTransactionManager, mailSender);
+        UserService testUserService = new TestUserServiceImpl(
+            userDao, new TestUserLevelUpgradePolicy(userDao, mailSender, users.get(3).getId()));
 
-        assertThrows(TestUserLevelUpgradePolicyException.class, testUserService::upgradeLevels);
+        TransactionHandler txHandler = new TransactionHandler(testUserService,
+            platformTransactionManager, "upgradeLevels");
+
+        UserService userService = (UserService) Proxy.newProxyInstance(
+            getClass().getClassLoader(),
+            new Class[]{UserService.class},
+            txHandler
+        );
+
+        assertThrows(TestUserLevelUpgradePolicyException.class, userService::upgradeLevels);
         checkLevel(users.get(1), false);
         checkLevel(users.get(3), false);
     }
@@ -122,13 +133,11 @@ class UserServiceImplTest {
     }
 
 
-    static class TestUserServiceImpl extends UserServiceTx {
+    static class TestUserServiceImpl extends UserServiceImpl {
 
-        public TestUserServiceImpl(UserDao userDao, String id, PlatformTransactionManager platformTransactionManager, MailSender mailSender) {
-            super(new UserServiceImpl(userDao, new TestUserLevelUpgradePolicy(userDao, mailSender,id)), platformTransactionManager);
+        public TestUserServiceImpl(UserDao userDao, UserLevelUpgradePolicy userLevelUpgradePolicy) {
+            super(userDao, userLevelUpgradePolicy);
         }
-
-
 
         @Override
         public void upgradeLevels() {
