@@ -1,6 +1,7 @@
 package me.hyeonho.toby;
 
 import java.lang.reflect.Proxy;
+import me.hyeonho.toby.learningtest.aop.factory_bean.MessageFactoryBean;
 import me.hyeonho.toby.user.dao.JdbcContext;
 import me.hyeonho.toby.user.dao.UserDaoJdbc;
 import me.hyeonho.toby.user.service.DummyMailSender;
@@ -63,4 +64,9 @@ public class TestDaoFactory {
 
     @Bean
     public UserLevelUpgradePolicy userLevelUpgradePolicy(){return new UserLevelUpgradePolicyImpl(userDao(), mailSender()); }
+
+    @Bean(value = "message")
+    public MessageFactoryBean message() {
+        return new MessageFactoryBean("Factory Bean");
+    }
 }
