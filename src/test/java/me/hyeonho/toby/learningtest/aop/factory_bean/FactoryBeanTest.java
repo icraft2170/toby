@@ -23,10 +23,4 @@ public class FactoryBeanTest {
     assertThat(message).isInstanceOf(Message.class);
     assertThat(((Message)message).getText()).isEqualTo("Factory Bean");
   }
-
-  @Test
-  void getFactoryBean() {
-    Object message = context.getBean("$message");
-    assertThat(message).isInstanceOf(MessageFactoryBean.class);
-  }
 }

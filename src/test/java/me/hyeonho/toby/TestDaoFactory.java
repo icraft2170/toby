@@ -5,11 +5,16 @@ import me.hyeonho.toby.learningtest.aop.factory_bean.MessageFactoryBean;
 import me.hyeonho.toby.user.dao.JdbcContext;
 import me.hyeonho.toby.user.dao.UserDaoJdbc;
 import me.hyeonho.toby.user.service.DummyMailSender;
+import me.hyeonho.toby.user.service.TransactionAdvice;
 import me.hyeonho.toby.user.service.TransactionHandler;
 import me.hyeonho.toby.user.service.UserLevelUpgradePolicy;
 import me.hyeonho.toby.user.service.UserLevelUpgradePolicyImpl;
 import me.hyeonho.toby.user.service.UserService;
 import me.hyeonho.toby.user.service.UserServiceImpl;
+import org.springframework.aop.PointcutAdvisor;
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,12 +53,33 @@ public class TestDaoFactory {
         return new DataSourceTransactionManager(dataSource());
     }
     @Bean
-    public UserService userService(){
-        return (UserService) Proxy.newProxyInstance(
-            getClass().getClassLoader(),
-            new Class[]{UserService.class},
-            new TransactionHandler(new UserServiceImpl(userDao(), userLevelUpgradePolicy()), platformTransactionManager(), "upgradeLevels")
-        );
+    public UserServiceImpl userServiceImpl() {
+        return new UserServiceImpl(userDao(), userLevelUpgradePolicy());
+    }
+
+    @Bean
+    public TransactionAdvice transactionAdvice() {
+        return new TransactionAdvice(platformTransactionManager());
+    }
+
+    @Bean
+    public NameMatchMethodPointcut transactionPointcut() {
+        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+        pointcut.setMappedName("upgrade*");
+        return pointcut;
+    }
+
+    @Bean
+    public PointcutAdvisor transactionAdvisor() {
+        return new DefaultPointcutAdvisor(transactionPointcut(), transactionAdvice());
+    }
+
+    @Bean
+    public ProxyFactoryBean userService(){
+        ProxyFactoryBean pfBean = new ProxyFactoryBean();
+        pfBean.setTarget(userServiceImpl());
+        pfBean.addAdvisor(transactionAdvisor());
+        return pfBean;
     }
 
     @Bean

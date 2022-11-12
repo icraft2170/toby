@@ -8,8 +8,11 @@ import me.hyeonho.toby.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailSender;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -30,6 +33,8 @@ class UserServiceImplTest {
     @Autowired
     UserDao userDao;
 
+    @Autowired
+    ApplicationContext context;
     @Autowired
     MailSender mailSender;
 
@@ -100,6 +105,7 @@ class UserServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void upgradeAllOrNothing() {
         userDao.deleteAll();
         for (User user : users) {
@@ -111,11 +117,10 @@ class UserServiceImplTest {
         TransactionHandler txHandler = new TransactionHandler(testUserService,
             platformTransactionManager, "upgradeLevels");
 
-        UserService userService = (UserService) Proxy.newProxyInstance(
-            getClass().getClassLoader(),
-            new Class[]{UserService.class},
-            txHandler
-        );
+        ProxyFactoryBean txProxyFactoryBean =
+            context.getBean("&userService", ProxyFactoryBean.class);
+        txProxyFactoryBean.setTarget(testUserService);
+        UserService userService = (UserService) txProxyFactoryBean.getObject();
 
         assertThrows(TestUserLevelUpgradePolicyException.class, userService::upgradeLevels);
         checkLevel(users.get(1), false);
